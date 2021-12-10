@@ -26,7 +26,7 @@ other information that should be provided before the tool is installed.
 
 Navigate to release [page](https://github.com/dof2bot/4legs/releases) download and extract release archive.
 
-To install **4legs** follow next instructions:
+To install **4legs** follow next instructions
 ```
 in progress
 ```
@@ -40,7 +40,7 @@ in progress
 
 ### DEPENDENCIES
 
-**4legs** requires next modules and libraries:
+**4legs** requires next modules and libraries
 ```
 in progress
 ```
@@ -56,7 +56,7 @@ in progress
 
 [![Documentation Status](https://readthedocs.org/projects/4legs/badge/?version=latest)](https://4legs.readthedocs.io/projects/4legs/en/latest/?badge=latest)
 
-More documentation and info at:
+More documentation and info at
 * [https://4legs.readthedocs.io/en/latest/](https://4legs.readthedocs.io/en/latest/)
 * [https://www.sciencedirect.com](https://www.sciencedirect.com/topics/engineering/parallel-manipulator)
 * [https://link.springer.com](https://link.springer.com/chapter/10.1007/978-3-319-31126-5_2)
