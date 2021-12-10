@@ -1,4 +1,4 @@
-4LEGS
+4legs
 ------
 
 .. toctree::
@@ -25,26 +25,30 @@ other information that should be provided before the tool is installed.
 .. |Documentation Status| image:: https://readthedocs.org/projects/4legs/badge/?version=latest
    :target: https://4legs.readthedocs.io/projects/4legs/en/latest/?badge=latest
 
-INSTALLATION
+Installation
 -------------
+
+|Debian Linux OS|
+
+.. |Debian Linux OS| image:: https://raw.githubusercontent.com/dof2bot/4legs/dev/docs/debtux.png
 
 Navigate to release `page`_ download and extract release archive.
 
 .. _page: https://github.com/dof2bot/4legs/releases
 
-To install **4legs** type the following:
+To install **4legs** type the following
 
 .. code-block:: bash
 
    in progress
 
-DEPENDENCIES
+Dependencies
 -------------
 
-**4legs** requires next modules and libraries:
+**4legs** requires next modules and libraries
     in progress
 
-PROJECT STRUCTURE
+Project structure
 ------------------
 
 **4legs** is based on POP.
@@ -53,7 +57,7 @@ PROJECT STRUCTURE
 
    in progress
 
-COPYRIGHT AND LICENCE
+Copyright and licence
 ----------------------
 
 |License: GPL v3| |License: Apache 2.0|
