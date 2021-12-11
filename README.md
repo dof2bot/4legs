@@ -1,3 +1,5 @@
+<img align="right" src="https://raw.githubusercontent.com/dof2bot/4legs/master/docs/4legs_logo.png" width="25%">
+
 # 4legs
 
 **4legs** is variant of legged robot.
@@ -22,7 +24,7 @@ other information that should be provided before the tool is installed.
 - [Copyright and Licence](#copyright-and-licence)
 <!-- END doctoc -->
 
-### INSTALLATION
+### Installation
 
 Navigate to release [page](https://github.com/dof2bot/4legs/releases) download and extract release archive.
 
@@ -31,28 +33,28 @@ To install **4legs** follow next instructions
 in progress
 ```
 
-### USAGE
+### Usage
 
 Planned in picking and packaging in micro-factories.
 ```
 in progress
 ```
 
-### DEPENDENCIES
+### Dependencies
 
 **4legs** requires next modules and libraries
 ```
 in progress
 ```
 
-### PROJECT STRUCTURE
+### Project structure
 
 **4legs** is based on POP.
 ```
 in progress
 ```
 
-### DOCS
+### Docs
 
 [![Documentation Status](https://readthedocs.org/projects/4legs/badge/?version=latest)](https://4legs.readthedocs.io/projects/4legs/en/latest/?badge=latest)
 
@@ -63,7 +65,7 @@ More documentation and info at
 * [https://www.gnu.org/software/bash/manual/](https://www.gnu.org/software/bash/manual/)
 * [https://httpd.apache.org/docs/2.4/developer/modguide.html](https://httpd.apache.org/docs/2.4/developer/modguide.html)
 
-### COPYRIGHT AND LICENCE
+### Copyright and licence
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
