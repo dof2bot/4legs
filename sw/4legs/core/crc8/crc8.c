@@ -18,15 +18,15 @@
  * @brief Bitwise CRC-8 checksum calculator implementation.
  *
  * Uses the ATM/SMBus generator polynomial x^8 + x^2 + x^1 + x^0 (0x07)
- * to provide robust frame validation with low flash footprint and zero SRAM usage.
+ * to provide robust frame validation with low flash and zero SRAM usage.
  */
 
 #include "crc8.h"
 
 enum {
-	CRC8_POLYNOMIAL = 0x07, /**< ATM/SMBus generator polynomial (x^8 + x^2 + x^1 + 1). */
+	CRC8_POLYNOMIAL = 0x07, /**< ATM polynomial (x^8 + x^2 + x^1 + 1). */
 	CRC8_INIT_VALUE = 0x00, /**< Initial CRC accumulator seed value. */
-	CRC8_MSB_MASK = 0x80,   /**< Most significant bit mask for 8-bit CRC byte. */
+	CRC8_MSB_MASK = 0x80,   /**< MSB mask for 8-bit CRC byte. */
 	CRC8_BITS_PER_BYTE = 8  /**< Number of bits processed per byte loop. */
 };
 
@@ -35,7 +35,8 @@ uint8_t crc8_update(uint8_t crc, uint8_t byte) {
 
 	for (uint8_t bit = 0; bit < (uint8_t)CRC8_BITS_PER_BYTE; ++bit) {
 		if ((crc & (uint8_t)CRC8_MSB_MASK) != 0U) {
-			crc = (uint8_t)((uint8_t)(crc << 1U) ^ (uint8_t)CRC8_POLYNOMIAL);
+			uint8_t const shifted = (uint8_t)(crc << 1U);
+			crc = (uint8_t)(shifted ^ (uint8_t)CRC8_POLYNOMIAL);
 		} else {
 			crc = (uint8_t)(crc << 1U);
 		}

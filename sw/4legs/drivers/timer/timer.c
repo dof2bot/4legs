@@ -24,8 +24,10 @@
 #include <avr/io.h>
 
 enum {
-	TIMER2_OCR2A_1MS = 249U,    /**< 16MHz / (64 * 1000Hz) - 1 = 249 for 1ms CTC tick. */
-	TIMER2_TICKS_PER_20MS = 20U /**< 20 x 1ms ticks for 50Hz motion clock. */
+	/* 16MHz / (64 * 1000Hz) - 1 = 249 for 1ms CTC tick */
+	TIMER2_OCR2A_1MS = 249U,
+	/* 20 x 1ms ticks for 50Hz motion clock */
+	TIMER2_TICKS_PER_20MS = 20U
 };
 
 static volatile uint32_t s_system_millis = 0UL;

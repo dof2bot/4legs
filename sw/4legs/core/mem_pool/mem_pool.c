@@ -15,13 +15,17 @@
  * You should have received a copy of the GNU General Public License along
  * with this program_name. If not, see <http://www.gnu.org/licenses/>.
  *
- * @brief MISRA-C compliant fixed-size block memory pool allocator implementation.
+ * @brief Fixed-size block memory pool allocator implementation.
  */
 
 #include "mem_pool.h"
 
-bool mem_pool_init(mem_pool_t *pool, uint8_t *storage, uint8_t *free_stack, uint8_t block_size, uint8_t block_count) {
-	if ((pool == (mem_pool_t *)0) || (storage == (uint8_t *)0) || (free_stack == (uint8_t *)0) || (block_size == 0U) ||
+bool mem_pool_init(
+	mem_pool_t *pool, uint8_t *storage, uint8_t *free_stack,
+	uint8_t block_size, uint8_t block_count
+) {
+	if ((pool == (mem_pool_t *)0) || (storage == (uint8_t *)0) ||
+	    (free_stack == (uint8_t *)0) || (block_size == 0U) ||
 	    (block_count == 0U)) {
 		return false;
 	}
@@ -51,7 +55,8 @@ void *mem_pool_alloc(mem_pool_t *pool) {
 
 	pool->free_count--;
 	uint8_t const block_index = pool->free_stack[pool->free_count];
-	uint16_t const byte_offset = (uint16_t)block_index * (uint16_t)pool->block_size;
+	uint16_t const bs = (uint16_t)pool->block_size;
+	uint16_t const byte_offset = (uint16_t)block_index * bs;
 
 	return (void *)(&pool->storage[byte_offset]);
 }
@@ -63,7 +68,8 @@ bool mem_pool_free(mem_pool_t *pool, const void *block) {
 
 	const uint8_t *const ptr = (const uint8_t *)block;
 	const uint8_t *const start = pool->storage;
-	uint16_t const total_bytes = (uint16_t)pool->block_size * (uint16_t)pool->block_count;
+	uint16_t const bs = (uint16_t)pool->block_size;
+	uint16_t const total_bytes = bs * (uint16_t)pool->block_count;
 
 	/* Bounds check */
 	if ((ptr < start) || (ptr >= &start[total_bytes])) {
@@ -72,11 +78,11 @@ bool mem_pool_free(mem_pool_t *pool, const void *block) {
 
 	/* Alignment check */
 	uint16_t const offset = (uint16_t)(ptr - start);
-	if ((offset % (uint16_t)pool->block_size) != 0U) {
+	if ((offset % bs) != 0U) {
 		return false;
 	}
 
-	uint8_t const block_index = (uint8_t)(offset / (uint16_t)pool->block_size);
+	uint8_t const block_index = (uint8_t)(offset / bs);
 
 	/* Pool cannot exceed capacity */
 	if (pool->free_count >= pool->block_count) {

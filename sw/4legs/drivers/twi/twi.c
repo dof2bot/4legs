@@ -53,12 +53,16 @@ twi_result_t twi_start(uint8_t slave_addr, twi_op_mode_t mode) {
 
 	/* Verify START or Repeated START status */
 	uint8_t const start_status = (uint8_t)(TWSR & (uint8_t)TWI_STATUS_MASK);
-	if ((start_status != (uint8_t)TW_START) && (start_status != (uint8_t)TW_REP_START)) {
+	if ((start_status != (uint8_t)TW_START) &&
+	    (start_status != (uint8_t)TW_REP_START)) {
 		return TWI_ERROR_START;
 	}
 
 	/* Construct SLA+W or SLA+R byte */
-	uint8_t const sla = (uint8_t)((uint8_t)(slave_addr << 1U) | (mode == TWI_READ ? (uint8_t)TWI_SLA_READ_BIT : 0U));
+	uint8_t const sla_addr = (uint8_t)(slave_addr << 1U);
+	uint8_t const r_bit =
+		(mode == TWI_READ) ? (uint8_t)TWI_SLA_READ_BIT : 0U;
+	uint8_t const sla = (uint8_t)(sla_addr | r_bit);
 	TWDR = sla;
 	TWCR = (uint8_t)((1U << TWINT) | (1U << TWEN));
 
@@ -175,7 +179,9 @@ twi_result_t twi_stop(void) {
 	return TWI_SUCCESS;
 }
 
-twi_result_t twi_write_packet(uint8_t slave_addr, uint8_t reg_addr, const uint8_t *data, uint8_t len) {
+twi_result_t twi_write_packet(
+	uint8_t slave_addr, uint8_t reg_addr, const uint8_t *data, uint8_t len
+) {
 	if ((len > 0U) && (data == (const uint8_t *)0)) {
 		return TWI_ERROR_PARAM;
 	}
@@ -203,7 +209,9 @@ twi_result_t twi_write_packet(uint8_t slave_addr, uint8_t reg_addr, const uint8_
 	return twi_stop();
 }
 
-twi_result_t twi_read_packet(uint8_t slave_addr, uint8_t reg_addr, uint8_t *data, uint8_t len) {
+twi_result_t twi_read_packet(
+	uint8_t slave_addr, uint8_t reg_addr, uint8_t *data, uint8_t len
+) {
 	if ((len == 0U) || (data == (uint8_t *)0)) {
 		return TWI_ERROR_PARAM;
 	}

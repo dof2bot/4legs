@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program_name. If not, see <http://www.gnu.org/licenses/>.
  *
- * @brief Streaming non-blocking binary protocol frame parser state machine implementation.
+ * @brief Streaming binary protocol frame parser state machine.
  */
 
 #include "frame_parser.h"
@@ -30,8 +30,11 @@ void frame_parser_init(frame_parser_t *parser) {
 	}
 }
 
-bool frame_parser_feed_byte(frame_parser_t *parser, uint8_t byte, protocol_frame_t *out_frame) {
-	if ((parser == (frame_parser_t *)0) || (out_frame == (protocol_frame_t *)0)) {
+bool frame_parser_feed_byte(
+	frame_parser_t *parser, uint8_t byte, protocol_frame_t *out_frame
+) {
+	if ((parser == (frame_parser_t *)0) ||
+	    (out_frame == (protocol_frame_t *)0)) {
 		return false;
 	}
 
@@ -54,7 +57,8 @@ bool frame_parser_feed_byte(frame_parser_t *parser, uint8_t byte, protocol_frame
 	case PARSER_STATE_READ_LEN:
 		if (byte <= (uint8_t)FRAME_PAYLOAD_MAX) {
 			parser->frame.length = byte;
-			parser->running_crc = crc8_update(parser->running_crc, byte);
+			uint8_t const crc = parser->running_crc;
+			parser->running_crc = crc8_update(crc, byte);
 			parser->bytes_read = 0U;
 			if (byte == 0U) {
 				parser->state = PARSER_STATE_VERIFY_CRC;

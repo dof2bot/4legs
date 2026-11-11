@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program_name. If not, see <http://www.gnu.org/licenses/>.
  *
- * @brief Lock-free Single-Producer Single-Consumer (SPSC) circular FIFO ring buffer implementation.
+ * @brief Lock-free SPSC circular FIFO ring buffer implementation.
  */
 
 #include "ring_buffer.h"
@@ -26,10 +26,13 @@
  * @param value Value to check.
  * @return bool true if power of two, false otherwise.
  */
-static inline bool is_power_of_two(uint8_t value) { return ((value != 0U) && ((value & (uint8_t)(value - 1U)) == 0U)); }
+static inline bool is_power_of_two(uint8_t value) {
+	return ((value != 0U) && ((value & (uint8_t)(value - 1U)) == 0U));
+}
 
 bool ring_buffer_init(ring_buffer_t *rb, uint8_t *storage, uint8_t size) {
-	if ((rb == (ring_buffer_t *)0) || (storage == (uint8_t *)0) || (!is_power_of_two(size))) {
+	if ((rb == (ring_buffer_t *)0) || (storage == (uint8_t *)0) ||
+	    (!is_power_of_two(size))) {
 		return false;
 	}
 
@@ -46,7 +49,8 @@ bool ring_buffer_push(ring_buffer_t *rb, uint8_t byte) {
 		return false;
 	}
 
-	uint8_t const next_head = (uint8_t)((rb->head + 1U) & (uint8_t)(rb->size - 1U));
+	uint8_t const mask = (uint8_t)(rb->size - 1U);
+	uint8_t const next_head = (uint8_t)((rb->head + 1U) & mask);
 
 	if (next_head == rb->tail) {
 		return false; /* Buffer is full */
@@ -103,7 +107,8 @@ bool ring_buffer_is_full(const ring_buffer_t *rb) {
 		return true;
 	}
 
-	uint8_t const next_head = (uint8_t)((rb->head + 1U) & (uint8_t)(rb->size - 1U));
+	uint8_t const mask = (uint8_t)(rb->size - 1U);
+	uint8_t const next_head = (uint8_t)((rb->head + 1U) & mask);
 	return (next_head == rb->tail);
 }
 

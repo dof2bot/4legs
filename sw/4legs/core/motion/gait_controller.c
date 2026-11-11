@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program_name. If not, see <http://www.gnu.org/licenses/>.
  *
- * @brief Non-blocking Finite State Machine (FSM) gait and choreography controller implementation.
+ * @brief Finite State Machine (FSM) gait controller implementation.
  */
 
 #include "gait_controller.h"
@@ -42,6 +42,13 @@ static const int16_t POSE_SIT[ROBOT_LEGS_COUNT][ROBOT_JOINTS_PER_LEG] = {
     {900, 272, 341}    /* Leg 3: BL */
 };
 
+static inline void set_target(
+	motion_planner_t *p, uint8_t leg,
+	int16_t c, int16_t f, int16_t t, uint16_t dur
+) {
+	(void)motion_planner_set_joint_target(p, leg, c, f, t, dur);
+}
+
 bool gait_controller_init(gait_controller_t *controller) {
 	if (controller == (gait_controller_t *)0) {
 		return false;
@@ -56,7 +63,9 @@ bool gait_controller_init(gait_controller_t *controller) {
 	return true;
 }
 
-bool gait_controller_request(gait_controller_t *controller, gait_type_t gait, uint8_t count) {
+bool gait_controller_request(
+	gait_controller_t *controller, gait_type_t gait, uint8_t count
+) {
 	if (controller == (gait_controller_t *)0) {
 		return false;
 	}
@@ -92,7 +101,9 @@ bool gait_controller_is_idle(const gait_controller_t *controller) {
 	return (controller->steps_remaining == 0U);
 }
 
-void gait_controller_abort(gait_controller_t *controller, motion_planner_t *planner) {
+void gait_controller_abort(
+	gait_controller_t *controller, motion_planner_t *planner
+) {
 	if (controller != (gait_controller_t *)0) {
 		controller->steps_remaining = 0U;
 		controller->step_phase = 0U;
@@ -110,71 +121,62 @@ robot_state_t gait_controller_get_state(const gait_controller_t *controller) {
 	return controller->state;
 }
 
-gait_type_t gait_controller_get_active_gait(const gait_controller_t *controller) {
+gait_type_t gait_controller_get_active_gait(
+	const gait_controller_t *controller
+) {
 	if (controller == (const gait_controller_t *)0) {
 		return GAIT_SIT;
 	}
 	return controller->active_gait;
 }
 
-static void step_forward_fsm(gait_controller_t *controller, motion_planner_t *planner) {
+static void step_forward_fsm(
+	gait_controller_t *controller, motion_planner_t *planner
+) {
+	uint16_t const d_ms = (uint16_t)GAIT_DEFAULT_TRANSITION_MS;
+	uint16_t const b_ms = (uint16_t)GAIT_BODY_TRANSITION_MS;
+	uint8_t const br = (uint8_t)LEG_BACK_RIGHT;
+	uint8_t const fl = (uint8_t)LEG_FRONT_LEFT;
+	uint8_t const fr = (uint8_t)LEG_FRONT_RIGHT;
+	uint8_t const bl = (uint8_t)LEG_BACK_LEFT;
+
 	switch (controller->step_phase) {
 	case 0U:
 		/* Leg 2 lift */
-		(void)motion_planner_set_joint_target(
-		    planner, (uint8_t)LEG_BACK_RIGHT, 900, 1492, 1445, (uint16_t)GAIT_DEFAULT_TRANSITION_MS
-		);
+		set_target(planner, br, 900, 1492, 1445, d_ms);
 		controller->step_phase++;
 		break;
 	case 1U:
 		/* Leg 2 swing forward */
-		(void)motion_planner_set_joint_target(
-		    planner, (uint8_t)LEG_BACK_RIGHT, 378, 1353, 1084, (uint16_t)GAIT_DEFAULT_TRANSITION_MS
-		);
+		set_target(planner, br, 378, 1353, 1084, d_ms);
 		controller->step_phase++;
 		break;
 	case 2U:
 		/* Leg 2 plant down */
-		(void)motion_planner_set_joint_target(
-		    planner, (uint8_t)LEG_BACK_RIGHT, 378, 1155, 974, (uint16_t)GAIT_DEFAULT_TRANSITION_MS
-		);
+		set_target(planner, br, 378, 1155, 974, d_ms);
 		controller->step_phase++;
 		break;
 	case 3U:
 		/* Shift body forward across all legs */
-		(void)motion_planner_set_joint_target(
-		    planner, (uint8_t)LEG_FRONT_RIGHT, 900, 615, 512, (uint16_t)GAIT_BODY_TRANSITION_MS
-		);
-		(void)motion_planner_set_joint_target(
-		    planner, (uint8_t)LEG_FRONT_LEFT, 378, 1155, 974, (uint16_t)GAIT_BODY_TRANSITION_MS
-		);
-		(void)motion_planner_set_joint_target(
-		    planner, (uint8_t)LEG_BACK_RIGHT, 572, 1200, 1210, (uint16_t)GAIT_BODY_TRANSITION_MS
-		);
-		(void)motion_planner_set_joint_target(
-		    planner, (uint8_t)LEG_BACK_LEFT, 1228, 600, 590, (uint16_t)GAIT_BODY_TRANSITION_MS
-		);
+		set_target(planner, fr, 900, 615, 512, b_ms);
+		set_target(planner, fl, 378, 1155, 974, b_ms);
+		set_target(planner, br, 572, 1200, 1210, b_ms);
+		set_target(planner, bl, 1228, 600, 590, b_ms);
 		controller->step_phase++;
 		break;
 	case 4U:
 		/* Leg 1 lift */
-		(void)motion_planner_set_joint_target(
-		    planner, (uint8_t)LEG_FRONT_LEFT, 378, 1353, 1084, (uint16_t)GAIT_DEFAULT_TRANSITION_MS
-		);
+		set_target(planner, fl, 378, 1353, 1084, d_ms);
 		controller->step_phase++;
 		break;
 	case 5U:
 		/* Leg 1 swing backward to neutral */
-		(void)motion_planner_set_joint_target(
-		    planner, (uint8_t)LEG_FRONT_LEFT, 900, 1492, 1445, (uint16_t)GAIT_DEFAULT_TRANSITION_MS
-		);
+		set_target(planner, fl, 900, 1492, 1445, d_ms);
 		controller->step_phase++;
 		break;
 	case 6U:
 		/* Leg 1 plant down */
-		(void)motion_planner_set_joint_target(
-		    planner, (uint8_t)LEG_FRONT_LEFT, 900, 1185, 1288, (uint16_t)GAIT_DEFAULT_TRANSITION_MS
-		);
+		set_target(planner, fl, 900, 1185, 1288, d_ms);
 		controller->step_phase++;
 		break;
 	case 7U:
@@ -190,12 +192,15 @@ static void step_forward_fsm(gait_controller_t *controller, motion_planner_t *pl
 	}
 }
 
-void gait_controller_step(gait_controller_t *controller, motion_planner_t *planner) {
-	if ((controller == (gait_controller_t *)0) || (planner == (motion_planner_t *)0)) {
+void gait_controller_step(
+	gait_controller_t *controller, motion_planner_t *planner
+) {
+	if ((controller == (gait_controller_t *)0) ||
+	    (planner == (motion_planner_t *)0)) {
 		return;
 	}
 
-	/* Only advance FSM when previous leg interpolation has completely reached its target */
+	/* Advance FSM only when interpolation reached target */
 	if (!motion_planner_is_reached(planner)) {
 		return;
 	}
@@ -242,25 +247,24 @@ void gait_controller_step(gait_controller_t *controller, motion_planner_t *plann
 		break;
 
 	case GAIT_HAND_WAVE:
-		if (controller->step_phase == 0U) {
-			(void)motion_planner_set_joint_target(
-			    planner, (uint8_t)LEG_FRONT_RIGHT, 1074, 0, 340, (uint16_t)GAIT_BODY_TRANSITION_MS
-			);
-			controller->step_phase = 1U;
-		} else if (controller->step_phase == 1U) {
-			(void)motion_planner_set_joint_target(
-			    planner, (uint8_t)LEG_FRONT_RIGHT, 1492, 0, 334, (uint16_t)GAIT_BODY_TRANSITION_MS
-			);
-			controller->step_phase = 2U;
-		} else {
-			(void)motion_planner_set_joint_target(
-			    planner,
-			    (uint8_t)LEG_FRONT_RIGHT,
-			    POSE_STAND[LEG_FRONT_RIGHT][JOINT_COXA],
-			    POSE_STAND[LEG_FRONT_RIGHT][JOINT_FEMUR],
-			    POSE_STAND[LEG_FRONT_RIGHT][JOINT_TIBIA],
-			    (uint16_t)GAIT_BODY_TRANSITION_MS
-			);
+		{
+			uint16_t const b_ms = (uint16_t)GAIT_BODY_TRANSITION_MS;
+			uint8_t const fr = (uint8_t)LEG_FRONT_RIGHT;
+			if (controller->step_phase == 0U) {
+				set_target(planner, fr, 1074, 0, 340, b_ms);
+				controller->step_phase = 1U;
+			} else if (controller->step_phase == 1U) {
+				set_target(planner, fr, 1492, 0, 334, b_ms);
+				controller->step_phase = 2U;
+			} else {
+				set_target(
+					planner, fr,
+					POSE_STAND[fr][JOINT_COXA],
+					POSE_STAND[fr][JOINT_FEMUR],
+					POSE_STAND[fr][JOINT_TIBIA],
+					b_ms
+				);
+		}
 			controller->step_phase = 0U;
 			if (controller->steps_remaining > 0U) {
 				controller->steps_remaining--;

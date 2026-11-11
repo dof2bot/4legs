@@ -56,24 +56,29 @@ bool mpu6050_init(const mpu6050_config_t *config) {
 
 	/* 1. Wake up MPU-6050: clear SLEEP bit in PWR_MGMT_1 */
 	uint8_t pwr_data = 0x00U;
-	if (twi_write_packet(s_i2c_addr, (uint8_t)MPU6050_REG_PWR_MGMT_1, &pwr_data, 1U) != TWI_SUCCESS) {
+	uint8_t const pwr_reg = (uint8_t)MPU6050_REG_PWR_MGMT_1;
+	if (twi_write_packet(s_i2c_addr, pwr_reg, &pwr_data, 1U) !=
+	    TWI_SUCCESS) {
 		s_ready = false;
 		return false;
 	}
 
 	_delay_ms(10);
 
-	/* 2. Configure Digital Low Pass Filter (DLPF_CFG = 3 -> 44 Hz accel, 42 Hz gyro) */
+	/* 2. Configure DLPF (DLPF_CFG = 3 -> 44 Hz accel, 42 Hz gyro) */
 	uint8_t dlpf_data = 0x03U;
-	(void)twi_write_packet(s_i2c_addr, (uint8_t)MPU6050_REG_CONFIG, &dlpf_data, 1U);
+	uint8_t const cfg_reg = (uint8_t)MPU6050_REG_CONFIG;
+	(void)twi_write_packet(s_i2c_addr, cfg_reg, &dlpf_data, 1U);
 
 	/* 3. Configure Gyro Full Scale (+/- 250 deg/s) */
 	uint8_t gyro_cfg = 0x00U;
-	(void)twi_write_packet(s_i2c_addr, (uint8_t)MPU6050_REG_GYRO_CONFIG, &gyro_cfg, 1U);
+	uint8_t const gyro_reg = (uint8_t)MPU6050_REG_GYRO_CONFIG;
+	(void)twi_write_packet(s_i2c_addr, gyro_reg, &gyro_cfg, 1U);
 
 	/* 4. Configure Accel Full Scale (+/- 2g) */
 	uint8_t accel_cfg = 0x00U;
-	(void)twi_write_packet(s_i2c_addr, (uint8_t)MPU6050_REG_ACCEL_CONFIG, &accel_cfg, 1U);
+	uint8_t const acc_reg = (uint8_t)MPU6050_REG_ACCEL_CONFIG;
+	(void)twi_write_packet(s_i2c_addr, acc_reg, &accel_cfg, 1U);
 
 	s_ready = true;
 	return true;
@@ -86,14 +91,25 @@ bool mpu6050_read_data(void *context, imu_data_t *data) {
 	}
 
 	uint8_t burst[MPU6050_DATA_BURST_LEN];
-	if (twi_read_packet(s_i2c_addr, (uint8_t)MPU6050_REG_ACCEL_XOUT_H, burst, (uint8_t)MPU6050_DATA_BURST_LEN) != TWI_SUCCESS) {
+	uint8_t const reg_xout = (uint8_t)MPU6050_REG_ACCEL_XOUT_H;
+	uint8_t const burst_len = (uint8_t)MPU6050_DATA_BURST_LEN;
+	if (twi_read_packet(s_i2c_addr, reg_xout, burst, burst_len) !=
+	    TWI_SUCCESS) {
 		return false;
 	}
 
-	int16_t const raw_ax = (int16_t)(((uint16_t)burst[0] << SHIFT_8) | (uint16_t)burst[1]);
-	int16_t const raw_ay = (int16_t)(((uint16_t)burst[2] << SHIFT_8) | (uint16_t)burst[3]);
-	int16_t const raw_az = (int16_t)(((uint16_t)burst[4] << SHIFT_8) | (uint16_t)burst[5]);
-	int16_t const raw_gz = (int16_t)(((uint16_t)burst[12] << SHIFT_8) | (uint16_t)burst[13]);
+	uint16_t const u_ax =
+		((uint16_t)burst[0] << SHIFT_8) | (uint16_t)burst[1];
+	uint16_t const u_ay =
+		((uint16_t)burst[2] << SHIFT_8) | (uint16_t)burst[3];
+	uint16_t const u_az =
+		((uint16_t)burst[4] << SHIFT_8) | (uint16_t)burst[5];
+	uint16_t const u_gz =
+		((uint16_t)burst[12] << SHIFT_8) | (uint16_t)burst[13];
+	int16_t const raw_ax = (int16_t)u_ax;
+	int16_t const raw_ay = (int16_t)u_ay;
+	int16_t const raw_az = (int16_t)u_az;
+	int16_t const raw_gz = (int16_t)u_gz;
 
 	/* Scale accelerations to milli-g (+/- 2g -> 16384 LSB/g) */
 	data->accel_x = (int16_t)(((int32_t)raw_ax * 1000L) / 16384L);

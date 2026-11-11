@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program_name. If not, see <http://www.gnu.org/licenses/>.
  *
- * @brief Firmware composition root, dependency injection, and non-blocking superloop.
+ * @brief Firmware composition root and non-blocking superloop.
  */
 
 #include "command_dispatcher.h"
@@ -35,7 +35,7 @@
 #include <avr/wdt.h>
 
 enum {
-	POOL_BLOCK_SIZE = 16, /**< 16 bytes per block (accommodates motion_keyframe_t). */
+	POOL_BLOCK_SIZE = 16, /**< 16 bytes per keyframe block. */
 	POOL_BLOCK_COUNT = 16 /**< 16 blocks = 256 bytes static SRAM pool. */
 };
 
@@ -54,8 +54,10 @@ int main(void) {
 	wdt_enable(WDTO_2S);
 
 	/* 1. Initialize static Memory Pool */
-	(void
-	)mem_pool_init(&s_mem_pool, s_pool_storage, s_pool_free_stack, (uint8_t)POOL_BLOCK_SIZE, (uint8_t)POOL_BLOCK_COUNT);
+	(void)mem_pool_init(
+		&s_mem_pool, s_pool_storage, s_pool_free_stack,
+		(uint8_t)POOL_BLOCK_SIZE, (uint8_t)POOL_BLOCK_COUNT
+	);
 
 	/* 2. Initialize Hardware HAL Drivers */
 	(void)uart_init((uint32_t)UART_DEFAULT_BAUD_RATE);
@@ -68,11 +70,14 @@ int main(void) {
 	servo_driver_t servo = pca9685_get_driver();
 	imu_driver_t imu = mpu6050_get_driver();
 
-	/* 4. Initialize Domain & Application Controllers (Dependency Injection) */
+	/* 4. Initialize Domain & Application Controllers */
 	(void)motion_planner_init(&s_motion_planner, &s_mem_pool, &servo);
 	(void)gait_controller_init(&s_gait_controller);
 	frame_parser_init(&s_frame_parser);
-	(void)command_dispatcher_init(&s_command_dispatcher, stream, &s_motion_planner, &s_gait_controller, &s_mem_pool);
+	(void)command_dispatcher_init(
+		&s_command_dispatcher, stream, &s_motion_planner,
+		&s_gait_controller, &s_mem_pool
+	);
 	command_dispatcher_set_imu(&s_command_dispatcher, &imu);
 
 	sei();
@@ -81,18 +86,24 @@ int main(void) {
 	while (1) {
 		wdt_reset();
 
-		/* Step A: Drain UART RX stream and feed binary protocol state machine */
+		/* Step A: Drain UART RX stream and feed frame parser */
 		while (comm_available(&stream)) {
 			uint8_t const byte = comm_read(&stream);
 			protocol_frame_t frame;
-			if (frame_parser_feed_byte(&s_frame_parser, byte, &frame)) {
-				command_dispatcher_dispatch(&s_command_dispatcher, &frame);
+			if (frame_parser_feed_byte(
+				&s_frame_parser, byte, &frame
+			)) {
+				command_dispatcher_dispatch(
+					&s_command_dispatcher, &frame
+				);
 			}
 		}
 
 		/* Step B: Periodic 20ms (50 Hz) motion control cycle */
 		if (timer_check_20ms_tick()) {
-			gait_controller_step(&s_gait_controller, &s_motion_planner);
+			gait_controller_step(
+				&s_gait_controller, &s_motion_planner
+			);
 			(void)motion_planner_step(&s_motion_planner);
 		}
 	}

@@ -2,9 +2,9 @@
 Language: Cpp
 BasedOnStyle: LLVM
 IndentWidth: 4
-TabWidth: 4
+TabWidth: 8
 UseTab: ForIndentation
-ColumnLimit: 120
+ColumnLimit: 80
 PointerAlignment: Right
 
 # Place closing parenthesis/bracket on a new line when breaking across lines

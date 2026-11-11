@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program_name. If not, see <http://www.gnu.org/licenses/>.
  *
- * @brief Hardware USART0 asynchronous serial transceiver with interrupt ring buffers.
+ * @brief Hardware USART0 asynchronous serial transceiver implementation.
  */
 
 #include "uart.h"
@@ -58,18 +58,22 @@ bool uart_init(uint32_t baud_rate) {
 		return false;
 	}
 
-	if (!ring_buffer_init(&s_rx_ring, s_rx_storage, (uint8_t)UART_RX_BUFFER_SIZE)) {
+	uint8_t const rx_sz = (uint8_t)UART_RX_BUFFER_SIZE;
+	if (!ring_buffer_init(&s_rx_ring, s_rx_storage, rx_sz)) {
 		return false;
 	}
 
-	if (!ring_buffer_init(&s_tx_ring, s_tx_storage, (uint8_t)UART_TX_BUFFER_SIZE)) {
+	uint8_t const tx_sz = (uint8_t)UART_TX_BUFFER_SIZE;
+	if (!ring_buffer_init(&s_tx_ring, s_tx_storage, tx_sz)) {
 		return false;
 	}
 
-	/* Enable 2X speed mode (U2X0) for reduced baud rate error at 57600/115200 */
+	/* Enable 2X speed mode (U2X0) for reduced baud rate error */
 	UCSR0A |= (1U << U2X0);
 
-	uint16_t const ubrr_val = (uint16_t)(((F_CPU / ((uint32_t)UBRR_DIVISOR_FACTOR_U2X * baud_rate)) + 1UL) / 2UL - 1UL);
+	uint32_t const denom = (uint32_t)UBRR_DIVISOR_FACTOR_U2X * baud_rate;
+	uint32_t const quot = ((F_CPU / denom) + 1UL) / 2UL;
+	uint16_t const ubrr_val = (uint16_t)(quot - 1UL);
 	UBRR0H = (uint8_t)(ubrr_val >> (uint8_t)UBRR_SHIFT_HIGH_BYTE);
 	UBRR0L = (uint8_t)(ubrr_val & (uint8_t)UBRR_LOW_BYTE_MASK);
 
@@ -134,7 +138,8 @@ bool uart_write_str_P(const char *flash_str) {
 }
 
 bool uart_flush_tx(void) {
-	while (!ring_buffer_is_empty(&s_tx_ring) || ((UCSR0A & (uint8_t)(1U << UDRE0)) == 0U)) {
+	while (!ring_buffer_is_empty(&s_tx_ring) ||
+	       ((UCSR0A & (uint8_t)(1U << UDRE0)) == 0U)) {
 		/* Wait for transmission to finish */
 	}
 	return true;

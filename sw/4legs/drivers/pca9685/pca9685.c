@@ -36,11 +36,12 @@ static const uint32_t PCA9685_PWM_PERIOD_US = 20000UL;
  *   Leg 2 (BR): Coxa=CH6,  Femur=CH4,  Tibia=CH5
  *   Leg 3 (BL): Coxa=CH14, Femur=CH12, Tibia=CH13
  */
-static const uint8_t PCA9685_CHANNEL_MAP[ROBOT_LEGS_COUNT][ROBOT_JOINTS_PER_LEG] = {
-    [LEG_FRONT_RIGHT] = {[JOINT_COXA] = 2U, [JOINT_FEMUR] = 0U, [JOINT_TIBIA] = 1U},
-    [LEG_FRONT_LEFT] = {[JOINT_COXA] = 10U, [JOINT_FEMUR] = 8U, [JOINT_TIBIA] = 9U},
-    [LEG_BACK_RIGHT] = {[JOINT_COXA] = 6U, [JOINT_FEMUR] = 4U, [JOINT_TIBIA] = 5U},
-    [LEG_BACK_LEFT] = {[JOINT_COXA] = 14U, [JOINT_FEMUR] = 12U, [JOINT_TIBIA] = 13U}
+static const uint8_t
+    PCA9685_CHANNEL_MAP[ROBOT_LEGS_COUNT][ROBOT_JOINTS_PER_LEG] = {
+	[LEG_FRONT_RIGHT] = {2U, 0U, 1U},
+	[LEG_FRONT_LEFT] = {10U, 8U, 9U},
+	[LEG_BACK_RIGHT] = {6U, 4U, 5U},
+	[LEG_BACK_LEFT] = {14U, 12U, 13U}
 };
 
 static uint8_t s_i2c_addr = (uint8_t)PCA9685_I2C_ADDR_DEFAULT;
@@ -61,19 +62,24 @@ bool pca9685_init(const pca9685_config_t *config) {
 
 	/* Put PCA9685 into SLEEP mode to allow PRE_SCALE programming */
 	uint8_t mode1_val = (uint8_t)PCA9685_MODE1_SLEEP;
-	if (twi_write_packet(s_i2c_addr, (uint8_t)PCA9685_REG_MODE1, &mode1_val, 1U) != TWI_SUCCESS) {
+	uint8_t const reg_m1 = (uint8_t)PCA9685_REG_MODE1;
+	if (twi_write_packet(s_i2c_addr, reg_m1, &mode1_val, 1U) !=
+	    TWI_SUCCESS) {
 		return false;
 	}
 
 	/* Program 50 Hz PWM clock prescaler */
 	uint8_t prescale_val = (uint8_t)PCA9685_PRESCALE_50HZ;
-	if (twi_write_packet(s_i2c_addr, (uint8_t)PCA9685_REG_PRE_SCALE, &prescale_val, 1U) != TWI_SUCCESS) {
+	uint8_t const reg_ps = (uint8_t)PCA9685_REG_PRE_SCALE;
+	if (twi_write_packet(s_i2c_addr, reg_ps, &prescale_val, 1U) !=
+	    TWI_SUCCESS) {
 		return false;
 	}
 
 	/* Wake up PCA9685 and enable Auto-Increment addressing */
 	mode1_val = (uint8_t)PCA9685_MODE1_AI;
-	if (twi_write_packet(s_i2c_addr, (uint8_t)PCA9685_REG_MODE1, &mode1_val, 1U) != TWI_SUCCESS) {
+	if (twi_write_packet(s_i2c_addr, reg_m1, &mode1_val, 1U) !=
+	    TWI_SUCCESS) {
 		return false;
 	}
 
@@ -81,24 +87,29 @@ bool pca9685_init(const pca9685_config_t *config) {
 	_delay_us((double)PCA9685_OSC_WAKEUP_DELAY_US);
 
 	/* Set RESTART bit in MODE1 */
-	mode1_val = (uint8_t)((uint8_t)PCA9685_MODE1_AI | (uint8_t)PCA9685_MODE1_RESTART);
-	if (twi_write_packet(s_i2c_addr, (uint8_t)PCA9685_REG_MODE1, &mode1_val, 1U) != TWI_SUCCESS) {
+	mode1_val = (uint8_t)((uint8_t)PCA9685_MODE1_AI |
+	                      (uint8_t)PCA9685_MODE1_RESTART);
+	if (twi_write_packet(s_i2c_addr, reg_m1, &mode1_val, 1U) !=
+	    TWI_SUCCESS) {
 		return false;
 	}
 
-	/* Configure MODE2: Totem-pole (push-pull) outputs for driving RC servos */
+	/* Configure MODE2: Totem-pole outputs */
 	uint8_t mode2_val = (uint8_t)PCA9685_MODE2_OUTDRV;
-	if (twi_write_packet(s_i2c_addr, (uint8_t)PCA9685_REG_MODE2, &mode2_val, 1U) != TWI_SUCCESS) {
+	uint8_t const reg_m2 = (uint8_t)PCA9685_REG_MODE2;
+	if (twi_write_packet(s_i2c_addr, reg_m2, &mode2_val, 1U) !=
+	    TWI_SUCCESS) {
 		return false;
 	}
 
 	s_attached = true;
 
 	/* Initialize all 12 servo channels to neutral position (1500us) */
+	uint16_t const mid_p = (uint16_t)PCA9685_SAFE_MID_PULSE_US;
 	for (uint8_t leg = 0U; leg < (uint8_t)ROBOT_LEGS_COUNT; leg++) {
-		for (uint8_t joint = 0U; joint < (uint8_t)ROBOT_JOINTS_PER_LEG; joint++) {
-			s_stored_pulses[leg][joint] = (uint16_t)PCA9685_SAFE_MID_PULSE_US;
-			if (!pca9685_set_pulse_us(leg, joint, (uint16_t)PCA9685_SAFE_MID_PULSE_US)) {
+		for (uint8_t j = 0U; j < (uint8_t)ROBOT_JOINTS_PER_LEG; j++) {
+			s_stored_pulses[leg][j] = mid_p;
+			if (!pca9685_set_pulse_us(leg, j, mid_p)) {
 				return false;
 			}
 		}
@@ -108,7 +119,8 @@ bool pca9685_init(const pca9685_config_t *config) {
 }
 
 bool pca9685_set_pulse_us(uint8_t leg, uint8_t joint, uint16_t pulse_us) {
-	if ((leg >= (uint8_t)ROBOT_LEGS_COUNT) || (joint >= (uint8_t)ROBOT_JOINTS_PER_LEG)) {
+	if ((leg >= (uint8_t)ROBOT_LEGS_COUNT) ||
+	    (joint >= (uint8_t)ROBOT_JOINTS_PER_LEG)) {
 		return false;
 	}
 
@@ -129,26 +141,35 @@ bool pca9685_set_pulse_us(uint8_t leg, uint8_t joint, uint16_t pulse_us) {
 
 	uint8_t const channel = PCA9685_CHANNEL_MAP[leg][joint];
 
-	/* Convert pulse duration in microseconds to 12-bit PWM ticks (0..4095) */
-	uint32_t const numerator = ((uint32_t)pulse_us * PCA9685_PWM_RESOLUTION) + (PCA9685_PWM_PERIOD_US / 2UL);
-	uint16_t const pulse_ticks = (uint16_t)(numerator / PCA9685_PWM_PERIOD_US);
+	/* Convert pulse duration in us to 12-bit PWM ticks (0..4095) */
+	uint32_t const num = ((uint32_t)pulse_us * PCA9685_PWM_RESOLUTION) +
+	                     (PCA9685_PWM_PERIOD_US / 2UL);
+	uint16_t const pulse_ticks = (uint16_t)(num / PCA9685_PWM_PERIOD_US);
 
-	/* Calculate ON and OFF ticks with optional phase staggering */
-	uint8_t const servo_idx = (uint8_t)((leg * (uint8_t)ROBOT_JOINTS_PER_LEG) + joint);
-	uint16_t const on_tick = s_use_staggering ? (uint16_t)(servo_idx * (uint16_t)PCA9685_STAGGER_STEP_TICKS) : 0U;
+	/* Calculate ON/OFF ticks with optional phase staggering */
+	uint8_t const s_idx =
+		(uint8_t)((leg * (uint8_t)ROBOT_JOINTS_PER_LEG) + joint);
+	uint16_t const stagger =
+		(uint16_t)(s_idx * (uint16_t)PCA9685_STAGGER_STEP_TICKS);
+	uint16_t const on_tick = s_use_staggering ? stagger : 0U;
 	uint16_t const off_tick = (uint16_t)(on_tick + pulse_ticks);
 
 	/* Prepare 4-byte burst payload: ON_L, ON_H, OFF_L, OFF_H */
 	uint8_t buf[PCA9685_BYTES_PER_CHANNEL];
-	buf[0] = (uint8_t)(on_tick & (uint8_t)PCA9685_BYTE_MASK_FF);
-	buf[1] = (uint8_t)((on_tick >> (uint8_t)PCA9685_BYTE_SHIFT_8) & (uint8_t)PCA9685_NIBBLE_MASK_0F);
-	buf[2] = (uint8_t)(off_tick & (uint8_t)PCA9685_BYTE_MASK_FF);
-	buf[3] = (uint8_t)((off_tick >> (uint8_t)PCA9685_BYTE_SHIFT_8) & (uint8_t)PCA9685_NIBBLE_MASK_0F);
+	uint8_t const s8 = (uint8_t)PCA9685_BYTE_SHIFT_8;
+	uint8_t const m_ff = (uint8_t)PCA9685_BYTE_MASK_FF;
+	uint8_t const m_0f = (uint8_t)PCA9685_NIBBLE_MASK_0F;
+	buf[0] = (uint8_t)(on_tick & m_ff);
+	buf[1] = (uint8_t)((on_tick >> s8) & m_0f);
+	buf[2] = (uint8_t)(off_tick & m_ff);
+	buf[3] = (uint8_t)((off_tick >> s8) & m_0f);
 
+	uint8_t const bpc = (uint8_t)PCA9685_BYTES_PER_CHANNEL;
 	uint8_t const reg_start =
-	    (uint8_t)((uint8_t)PCA9685_REG_LED0_ON_L + (channel * (uint8_t)PCA9685_BYTES_PER_CHANNEL));
+		(uint8_t)((uint8_t)PCA9685_REG_LED0_ON_L + (channel * bpc));
 
-	return (twi_write_packet(s_i2c_addr, reg_start, buf, (uint8_t)PCA9685_BYTES_PER_CHANNEL) == TWI_SUCCESS);
+	return (twi_write_packet(s_i2c_addr, reg_start, buf, bpc) ==
+	        TWI_SUCCESS);
 }
 
 bool pca9685_set_angle_tenths(uint8_t leg, uint8_t joint, int16_t tenths) {
@@ -160,10 +181,12 @@ bool pca9685_set_angle_tenths(uint8_t leg, uint8_t joint, int16_t tenths) {
 		/* In bounds */
 	}
 
-	/* Linear interpolation from tenths (0..1800) to pulse width (500..2400 us) */
-	uint32_t const span = (uint32_t)((uint16_t)PCA9685_SAFE_MAX_PULSE_US - (uint16_t)PCA9685_SAFE_MIN_PULSE_US);
-	uint16_t const pulse_us =
-	    (uint16_t)((uint16_t)PCA9685_SAFE_MIN_PULSE_US + (uint16_t)(((uint32_t)tenths * span) / 1800UL));
+	/* Interpolation from tenths (0..1800) to pulse (500..2400 us) */
+	uint16_t const p_min = (uint16_t)PCA9685_SAFE_MIN_PULSE_US;
+	uint16_t const p_max = (uint16_t)PCA9685_SAFE_MAX_PULSE_US;
+	uint32_t const span = (uint32_t)(p_max - p_min);
+	uint16_t const delta = (uint16_t)(((uint32_t)tenths * span) / 1800UL);
+	uint16_t const pulse_us = (uint16_t)(p_min + delta);
 
 	return pca9685_set_pulse_us(leg, joint, pulse_us);
 }
@@ -178,8 +201,9 @@ bool pca9685_attach(void) {
 	bool success = true;
 
 	for (uint8_t leg = 0U; leg < (uint8_t)ROBOT_LEGS_COUNT; leg++) {
-		for (uint8_t joint = 0U; joint < (uint8_t)ROBOT_JOINTS_PER_LEG; joint++) {
-			if (!pca9685_set_pulse_us(leg, joint, s_stored_pulses[leg][joint])) {
+		for (uint8_t j = 0U; j < (uint8_t)ROBOT_JOINTS_PER_LEG; j++) {
+			uint16_t const p = s_stored_pulses[leg][j];
+			if (!pca9685_set_pulse_us(leg, j, p)) {
 				success = false;
 			}
 		}
@@ -190,27 +214,33 @@ bool pca9685_attach(void) {
 
 bool pca9685_detach(void) {
 	s_attached = false;
-	const uint8_t buf[PCA9685_BYTES_PER_CHANNEL] = {0U, 0U, 0U, (uint8_t)PCA9685_LED_FULL_OFF_BIT};
-
-	return (
-	    twi_write_packet(s_i2c_addr, (uint8_t)PCA9685_REG_ALL_LED_ON_L, buf, (uint8_t)PCA9685_BYTES_PER_CHANNEL) ==
-	    TWI_SUCCESS
-	);
+	uint8_t const bpc = (uint8_t)PCA9685_BYTES_PER_CHANNEL;
+	const uint8_t buf[PCA9685_BYTES_PER_CHANNEL] = {
+		0U, 0U, 0U, (uint8_t)PCA9685_LED_FULL_OFF_BIT
+	};
+	uint8_t const reg_all = (uint8_t)PCA9685_REG_ALL_LED_ON_L;
+	return (twi_write_packet(s_i2c_addr, reg_all, buf, bpc) == TWI_SUCCESS);
 }
 
 bool pca9685_is_attached(void) { return s_attached; }
 
-static bool adapter_set_pulse_us(void *context, uint8_t leg, uint8_t joint, uint16_t pulse_us) {
+static bool adapter_set_pulse_us(
+	void *context, uint8_t leg, uint8_t joint, uint16_t pulse_us
+) {
 	(void)context;
 	return pca9685_set_pulse_us(leg, joint, pulse_us);
 }
 
-static bool adapter_set_angle_tenths(void *context, uint8_t leg, uint8_t joint, int16_t tenths) {
+static bool adapter_set_angle_tenths(
+	void *context, uint8_t leg, uint8_t joint, int16_t tenths
+) {
 	(void)context;
 	return pca9685_set_angle_tenths(leg, joint, tenths);
 }
 
-static bool adapter_set_angle_deg(void *context, uint8_t leg, uint8_t joint, float angle_deg) {
+static bool adapter_set_angle_deg(
+	void *context, uint8_t leg, uint8_t joint, float angle_deg
+) {
 	(void)context;
 	return pca9685_set_angle_deg(leg, joint, angle_deg);
 }
