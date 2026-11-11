@@ -1,3 +1,19 @@
+<img align="right" src="https://raw.githubusercontent.com/dof2bot/4legs/master/docs/4legs_logo.png" width="25%">
+
+# 4legs — Quadruped Robot Embedded Firmware & Control Architecture
+
+**4legs** is a modular, high-reliability embedded firmware and hardware control framework for a 12-DOF (degree-of-freedom) quadruped / spider robot based on the **Microchip AVR ATmega328P** microcontroller.
+
+The firmware is developed in **100% bare-metal C** adhering to **Clean Architecture**, **SOLID principles**, and **MISRA-C:2012 / 2023** deterministic embedded standards: zero dynamic memory allocation, bounded loops, lock-free ring buffers, and CRC-8 integrity verification on all serial communication.
+
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+[![Platform](https://img.shields.io/badge/platform-AVR%20ATmega328P-blue.svg)](https://www.microchip.com/en-us/product/ATmega328P)
+[![Language](https://img.shields.io/badge/language-C%20(C99)-orange.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
+[![Documentation Status](https://readthedocs.org/projects/4legs/badge/?version=latest)](https://4legs.readthedocs.io/projects/4legs/en/latest/?badge=latest)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+---
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -27,37 +43,6 @@
   - [Copyright & License](#copyright--license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-<img align="right" src="https://raw.githubusercontent.com/dof2bot/4legs/master/docs/4legs_logo.png" width="25%">
-
-# 4legs — Quadruped Robot Embedded Firmware & Control Architecture
-
-**4legs** is a modular, high-reliability embedded firmware and hardware control framework for a 12-DOF (degree-of-freedom) quadruped / spider robot based on the **Microchip AVR ATmega328P** microcontroller.
-
-The firmware is developed in **100% bare-metal C** adhering to **Clean Architecture**, **SOLID principles**, and **MISRA-C:2012 / 2023** deterministic embedded standards: zero dynamic memory allocation, bounded loops, lock-free ring buffers, and CRC-8 integrity verification on all serial communication.
-
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
-[![Platform](https://img.shields.io/badge/platform-AVR%20ATmega328P-blue.svg)](https://www.microchip.com/en-us/product/ATmega328P)
-[![Language](https://img.shields.io/badge/language-C%20(C99)-orange.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
-[![Documentation Status](https://readthedocs.org/projects/4legs/badge/?version=latest)](https://4legs.readthedocs.io/projects/4legs/en/latest/?badge=latest)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-
----
-
-## Table of Contents
-
-- [Overview & Robotics Design](#overview--robotics-design)
-- [Key Features](#key-features)
-- [Hardware Architecture & Electrical Topology](#hardware-architecture--electrical-topology)
-- [Firmware Architecture](#firmware-architecture)
-- [Motion State Machine](#motion-state-machine)
-- [Binary Wire Protocol & Communication Flows](#binary-wire-protocol--communication-flows)
-- [Prerequisites & Toolchain](#prerequisites--toolchain)
-- [Compilation & Flashing](#compilation--flashing)
-- [Host Integration (tetrapoder)](#host-integration-tetrapoder)
-- [Repository Structure](#repository-structure)
-- [Documentation & References](#documentation--references)
-- [Copyright & License](#copyright--license)
 
 ---
 
