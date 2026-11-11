@@ -33,6 +33,19 @@ CompileFlags:
     - -Idrivers/timer
     - -Idrivers/twi
     - -Idrivers/pca9685
+    - -Idrivers/mpu6050
+    - -Isw/4legs
+    - -Isw/4legs/core/interfaces
+    - -Isw/4legs/core/mem_pool
+    - -Isw/4legs/core/ring_buffer
+    - -Isw/4legs/core/crc8
+    - -Isw/4legs/core/motion
+    - -Isw/4legs/core/command_parser
+    - -Isw/4legs/drivers/uart
+    - -Isw/4legs/drivers/timer
+    - -Isw/4legs/drivers/twi
+    - -Isw/4legs/drivers/pca9685
+    - -Isw/4legs/drivers/mpu6050
     - -I..
     - -I../interfaces
     - -I../mem_pool
@@ -44,6 +57,7 @@ CompileFlags:
     - -I../../drivers/timer
     - -I../../drivers/twi
     - -I../../drivers/pca9685
+    - -I../../drivers/mpu6050
     - -I../..
     - -I../../core/interfaces
     - -I../../core/mem_pool
@@ -55,6 +69,7 @@ CompileFlags:
     - -I../timer
     - -I../twi
     - -I../pca9685
+    - -I../mpu6050
 
     - -std=gnu99
     - -O2
