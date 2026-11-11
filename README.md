@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [4legs — Quadruped Robot Embedded Firmware & Control Architecture](#4legs--quadruped-robot-embedded-firmware--control-architecture)
+  - [Table of Contents](#table-of-contents)
+  - [Overview & Robotics Design](#overview--robotics-design)
+  - [Key Features](#key-features)
+  - [Hardware Architecture & Electrical Topology](#hardware-architecture--electrical-topology)
+    - [Bill of Materials](#bill-of-materials)
+  - [Firmware Architecture](#firmware-architecture)
+  - [Motion State Machine](#motion-state-machine)
+  - [Binary Wire Protocol & Communication Flows](#binary-wire-protocol--communication-flows)
+    - [Wire Frame Anatomy](#wire-frame-anatomy)
+    - [Interactive Communication Sequences](#interactive-communication-sequences)
+    - [Command Set (Host $\to$ Robot)](#command-set-host-%5Cto-robot)
+    - [Response Set (Robot $\to$ Host)](#response-set-robot-%5Cto-host)
+  - [Prerequisites & Toolchain](#prerequisites--toolchain)
+  - [Compilation & Flashing](#compilation--flashing)
+    - [1. Compile Firmware Binary](#1-compile-firmware-binary)
+    - [2. Flash to ATmega328P](#2-flash-to-atmega328p)
+  - [Host Integration (tetrapoder)](#host-integration-tetrapoder)
+    - [Installation](#installation)
+    - [Modes of Operation](#modes-of-operation)
+  - [Repository Structure](#repository-structure)
+  - [Documentation & References](#documentation--references)
+  - [Copyright & License](#copyright--license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 <img align="right" src="https://raw.githubusercontent.com/dof2bot/4legs/master/docs/4legs_logo.png" width="25%">
 
 # 4legs — Quadruped Robot Embedded Firmware & Control Architecture
