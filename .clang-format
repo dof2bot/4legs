@@ -1,0 +1,39 @@
+---
+Language: Cpp
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: ForIndentation
+ColumnLimit: 120
+PointerAlignment: Right
+
+# Place closing parenthesis/bracket on a new line when breaking across lines
+AlignAfterOpenBracket: BlockIndent
+
+# Disallow bin packing when arguments or parameters break across lines
+BinPackArguments: false
+BinPackParameters: false
+
+# Keep short functions on a single line where appropriate
+AllowShortFunctionsOnASingleLine: All
+
+# Always format enums and their elements across multiple lines
+AllowShortEnumsOnASingleLine: false
+
+BreakBeforeBraces: Attach
+
+# Include sorting and grouping
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+
+# Spacing rules
+SpaceBeforeParens: ControlStatements
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpacesInAngles: false
+SpaceAfterCStyleCast: false
+SpaceBeforeAssignmentOperators: true
+
+ContinuationIndentWidth: 4
+IndentCaseLabels: false
+...
