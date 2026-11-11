@@ -1,0 +1,74 @@
+If:
+  PathMatch: .*\.h
+CompileFlags:
+  Add:
+    - -xc-header
+  Remove:
+    - -xobjective-c++-header
+    - -xobjective-c*
+
+---
+
+CompileFlags:
+  Add:
+    - --target=avr
+    - -mmcu=atmega328p
+    - -DF_CPU=16000000UL
+    - -D__AVR_ATmega328P__
+    - -D__AVR_DEVICE_NAME__=atmega328p
+    - -isystem
+    - /usr/lib/avr/include
+    - -isystem
+    - /usr/lib/gcc/avr/7.3.0/include
+    - -isystem
+    - /usr/lib/gcc/avr/7.3.0/include-fixed
+    - -I.
+    - -Icore/interfaces
+    - -Icore/mem_pool
+    - -Icore/ring_buffer
+    - -Icore/crc8
+    - -Icore/motion
+    - -Icore/command_parser
+    - -Idrivers/uart
+    - -Idrivers/timer
+    - -Idrivers/twi
+    - -Idrivers/pca9685
+    - -I..
+    - -I../interfaces
+    - -I../mem_pool
+    - -I../ring_buffer
+    - -I../crc8
+    - -I../motion
+    - -I../command_parser
+    - -I../../drivers/uart
+    - -I../../drivers/timer
+    - -I../../drivers/twi
+    - -I../../drivers/pca9685
+    - -I../..
+    - -I../../core/interfaces
+    - -I../../core/mem_pool
+    - -I../../core/ring_buffer
+    - -I../../core/crc8
+    - -I../../core/motion
+    - -I../../core/command_parser
+    - -I../uart
+    - -I../timer
+    - -I../twi
+    - -I../pca9685
+
+    - -std=gnu99
+    - -O2
+    - -Wall
+    - -Wno-unknown-attributes
+  Remove:
+    - -save-temps
+    - -gstabs
+    - -fpack-struct
+    - -fshort-enums
+    - -xobjective-c++-header
+    - -xobjective-c*
+
+Diagnostics:
+  UnusedIncludes: Strict
+  Suppress:
+    - "unknown-attributes"

@@ -1,0 +1,25 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "clangd.arguments": [
+            "--query-driver=/usr/bin/avr-gcc*"
+        ],
+        "files.associations": {
+            "*.c": "c",
+            "*.h": "c",
+            "*.S": "c",
+            "*.s": "c"
+        },
+        "files.exclude": {
+            "**/*.o": true,
+            "**/*.d": true,
+            "**/*.i": true,
+            "**/*.lss": true,
+            "**/*.map": true
+        }
+    }
+}

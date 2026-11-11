@@ -1,5 +1,5 @@
 # cflags.mk
-# Copyright (C) 2021 Vladimir Roncevic <elektron.ronca@gmail.com>
+# Copyright (C) 2021 - 2026 Vladimir Roncevic <elektron.ronca@gmail.com>
 #
 # 4legs is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -14,14 +14,30 @@
 # You should have received a copy of the GNU General Public License along
 # with this program_name. If not, see <http://www.gnu.org/licenses/>.
 
+INCLUDES := \
+	-I.. \
+	-I../core/interfaces \
+	-I../core/mem_pool \
+	-I../core/ring_buffer \
+	-I../core/crc8 \
+	-I../core/motion \
+	-I../core/command_parser \
+	-I../drivers/uart \
+	-I../drivers/timer \
+	-I../drivers/twi \
+	-I../drivers/pca9685 \
+	-I../drivers/mpu6050
+
+LIBS := -lm
+
 CFLAGS := \
 	-Wl,-Map,4legs.map \
 	-mmcu=atmega328p
 
 CCFLAGS := \
+	$(INCLUDES) \
 	-Wall \
 	-g2 \
-	-gstabs \
 	-O2 \
 	-fpack-struct \
 	-fshort-enums \
@@ -30,10 +46,8 @@ CCFLAGS := \
 	-std=gnu99 \
 	-funsigned-char \
 	-funsigned-bitfields \
-	-save-temps \
 	-mmcu=atmega328p \
 	-DF_CPU=16000000UL \
 	-MMD \
 	-MP \
 	-MF
-
