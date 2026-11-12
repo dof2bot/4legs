@@ -1,6 +1,6 @@
-<img align="right" src="https://raw.githubusercontent.com/dof2bot/4legs/master/docs/4legs_logo.png" width="25%">
-
 # 4legs — Quadruped Robot Embedded Firmware & Control Architecture
+
+<img align="right" src="https://raw.githubusercontent.com/dof2bot/4legs/master/docs/4legs_logo.png" width="25%">
 
 **4legs** is a modular, high-reliability embedded firmware and hardware control framework for a 12-DOF (degree-of-freedom) quadruped / spider robot based on the **Microchip AVR ATmega328P** microcontroller.
 
