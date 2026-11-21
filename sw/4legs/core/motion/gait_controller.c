@@ -264,13 +264,13 @@ void gait_controller_step(
 					POSE_STAND[fr][JOINT_TIBIA],
 					b_ms
 				);
-		}
-			controller->step_phase = 0U;
-			if (controller->steps_remaining > 0U) {
-				controller->steps_remaining--;
-			}
-			if (controller->steps_remaining == 0U) {
-				controller->state = ROBOT_STATE_STANDING;
+				controller->step_phase = 0U;
+				if (controller->steps_remaining > 0U) {
+					controller->steps_remaining--;
+				}
+				if (controller->steps_remaining == 0U) {
+					controller->state = ROBOT_STATE_STANDING;
+				}
 			}
 		}
 		break;
